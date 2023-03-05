@@ -8,7 +8,7 @@ use colored::Colorize;
 use std::collections::HashMap;
 use std::io::Write;
 
-use grrs::{find_and_collect_day, write_durations_collect_total, human_duration};
+use hrs::{find_and_collect_day, human_duration, process_line, write_durations_collect_total};
 
 #[derive(Parser)]
 struct Cli {
@@ -29,7 +29,7 @@ fn main() -> Result<()> {
 
     writeln!(out, "----");
     for line in lines_in_day {
-        grrs::process_line(line, &mut prev_tag, &mut durations_by_tag, &out);
+        process_line(line, &mut prev_tag, &mut durations_by_tag, &out);
     }
     writeln!(out, "----");
     let duration_total = write_durations_collect_total(&durations_by_tag, &out);

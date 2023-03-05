@@ -6,7 +6,7 @@ use std::process::Command;
 fn calculate_day() -> Result<(), Box<dyn std::error::Error>> {
     macro_rules! run {
         ($day:literal, $expected_out:literal) => {
-            let mut cmd = Command::cargo_bin("grrs")?;
+            let mut cmd = Command::cargo_bin("hrs")?;
             cmd.arg("./tests/data/hours.txt").arg($day);
             cmd.assert()
                 .success()
@@ -78,7 +78,7 @@ fn calculate_day() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn file_doesnt_exist() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::cargo_bin("grrs")?;
+    let mut cmd = Command::cargo_bin("hrs")?;
 
     cmd.arg("test/file/doesnt/exist").arg("1.3");
     cmd.assert()
