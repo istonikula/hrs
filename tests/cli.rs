@@ -30,7 +30,7 @@ fn calculate_day() -> Result<(), Box<dyn std::error::Error>> {
 00:30 tagless desc
 00:30 yet another tagless desc
 ----
-08:45
+08:45 +01:15
 ");
 
     run!("2.3", "\
@@ -46,7 +46,7 @@ fn calculate_day() -> Result<(), Box<dyn std::error::Error>> {
 04:00 [TAG-3]
 00:45 tagless desc
 ----
-07:00
+07:00 -00:30
 ");
 
     run!("3.3", "\
@@ -63,14 +63,14 @@ fn calculate_day() -> Result<(), Box<dyn std::error::Error>> {
 01:15 tagless desc 1
 00:15 tagless desc 2
 ----
-06:15
+06:15 -01:15
 ");
 
     run!("4.3", "\
 ----
 ----
 ----
-00:00
+00:00 -07:30
 ");
 
     Ok(())

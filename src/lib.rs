@@ -91,7 +91,11 @@ pub fn write_durations_collect_total(durations_by_tag: &HashMap<String, Vec<Dura
 }
 
 pub fn human_duration(duration: Duration) -> String {
-  format!("{:02}:{:02}", duration.num_hours(), duration.num_minutes() % 60)
+  format!("{:02}:{:02}", duration.num_hours().abs(), duration.num_minutes().abs() % 60)
+}
+pub fn human_duration_signed(duration: Duration) -> String {
+  let sign  = if duration < Duration::zero() { "-" } else { "+" };
+  format!("{}{:02}:{:02}", sign, duration.num_hours().abs(), duration.num_minutes().abs() % 60)
 }
 
 #[cfg(test)]
