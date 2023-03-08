@@ -8,7 +8,7 @@ use colored::Colorize;
 use std::collections::HashMap;
 use std::io::Write;
 
-use hrs::{find_and_collect_day, human_duration, human_duration_signed, process_line, write_durations_collect_total};
+use hrs::{find_and_collect_day, human_duration, human_duration_signed, process_line, write_durations_collect_total, write_total};
 
 #[derive(Parser)]
 struct Cli {
@@ -34,12 +34,7 @@ fn main() -> Result<()> {
     writeln!(out, "----");
     let duration_total = write_durations_collect_total(&durations_by_tag, &out);
     writeln!(out, "----");
-    // TODO move to function
-    let full_day = Duration::hours(7) + Duration::minutes(30);
-    let diff = duration_total - full_day;
-    let diff = if diff < Duration::zero() { human_duration_signed(diff).red() } else { human_duration_signed(diff).green() }; 
-
-    writeln!(out, "{} {}", human_duration(duration_total).bold().white(), diff);
+    write_total(duration_total, &out);
 
     Ok(())
 }

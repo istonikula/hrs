@@ -90,6 +90,24 @@ pub fn write_durations_collect_total(durations_by_tag: &HashMap<String, Vec<Dura
   duration_total
 }
 
+pub fn write_total(total: Duration, mut writer: impl std::io::Write) {
+    let full_day = Duration::hours(7) + Duration::minutes(30);
+    let diff = total - full_day;
+
+    if diff == Duration::zero() {
+        writeln!(writer, "{}", human_duration(total).bold().white());
+        return
+    }
+
+    let diff_human = human_duration_signed(diff); 
+    writeln!(
+        writer,
+        "{} {}",
+        human_duration(total).bold().white(),
+        if diff < Duration::zero() { diff_human.red() } else { diff_human.green() }
+    );
+}
+
 pub fn human_duration(duration: Duration) -> String {
   format!("{:02}:{:02}", duration.num_hours().abs(), duration.num_minutes().abs() % 60)
 }
@@ -224,5 +242,23 @@ mod tests {
       ].join("");
       assert_eq!(out, expected_out.as_bytes());
       assert_eq!(total, sum(&durations_by_tag.into_values().flatten().collect()));
+  }
+
+  #[test]
+  fn test_write_total() {
+    let mut out = Vec::new();
+
+    write_total(Duration::hours(7), &mut out);
+    assert_eq!(out, format!("{} {}\n", "07:00".bold().white(), "-00:30".red()).as_bytes());
+
+    out.clear();
+
+    write_total(Duration::hours(7) + Duration::minutes(30), &mut out);
+    assert_eq!(out, format!("{}\n", "07:30".bold().white()).as_bytes());
+
+    out.clear();
+
+    write_total(Duration::hours(8), &mut out);
+    assert_eq!(out, format!("{} {}\n", "08:00".bold().white(), "+00:30".green()).as_bytes());
   }
 }
