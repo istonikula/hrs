@@ -25,7 +25,18 @@ pub fn find_and_collect_day<'a>(content: &'a str, date: &str) -> Vec<&'a str> {
   lines_in_day
 }
 
-pub fn process_line(
+pub fn process_lines(
+    lines: Vec<&str>, 
+    durations_by_tag: &mut HashMap<String, Vec<Duration>>, 
+    mut writer: impl std::io::Write
+) {
+    let mut prev_tag: Option<String> = None;
+    for  line in lines {
+        process_line(line, &mut prev_tag, durations_by_tag, &mut writer);
+    }
+}
+
+fn process_line(
   line: &str,
   prev_tag: &mut Option<String>,
   durations_by_tag: &mut HashMap<String, Vec<Duration>>,
