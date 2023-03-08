@@ -8,13 +8,13 @@ fn calculate_day() -> Result<(), Box<dyn std::error::Error>> {
         ($day:literal, $expected_out:literal) => {
             let mut cmd = Command::cargo_bin("hrs")?;
             cmd.arg("./tests/data/hours.txt").arg($day);
-            cmd.assert()
-                .success()
-                .stdout($expected_out);
-        }
+            cmd.assert().success().stdout($expected_out);
+        };
     }
 
-    run!("1.3", "\
+    run!(
+        "1.3",
+        "\
 ----
 02:00 8-10 [TAG-1] desc
 00:30 10-10.30 tagless desc
@@ -31,9 +31,12 @@ fn calculate_day() -> Result<(), Box<dyn std::error::Error>> {
 00:30 yet another tagless desc
 ----
 08:45 +01:15
-");
+"
+    );
 
-    run!("2.3", "\
+    run!(
+        "2.3",
+        "\
 ----
 02:00 8-10 [TAG-1] desc
 00:45 10-10.45 tagless desc
@@ -47,9 +50,12 @@ fn calculate_day() -> Result<(), Box<dyn std::error::Error>> {
 00:45 tagless desc
 ----
 07:00 -00:30
-");
+"
+    );
 
-    run!("3.3", "\
+    run!(
+        "3.3",
+        "\
 ----
 01:15 9-10.15 [TAG-1] desc
 01:15 10.15-11.30 tagless desc 1
@@ -64,14 +70,18 @@ fn calculate_day() -> Result<(), Box<dyn std::error::Error>> {
 00:15 tagless desc 2
 ----
 06:15 -01:15
-");
+"
+    );
 
-    run!("4.3", "\
+    run!(
+        "4.3",
+        "\
 ----
 ----
 ----
 00:00 -07:30
-");
+"
+    );
 
     Ok(())
 }

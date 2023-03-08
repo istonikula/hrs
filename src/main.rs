@@ -8,7 +8,10 @@ use colored::Colorize;
 use std::collections::HashMap;
 use std::io::Write;
 
-use hrs::{find_and_collect_day, human_duration, human_duration_signed, process_lines, write_durations_collect_total, write_total};
+use hrs::{
+    find_and_collect_day, human_duration, human_duration_signed, process_lines,
+    write_durations_collect_total, write_total,
+};
 
 #[derive(Parser)]
 struct Cli {
@@ -35,4 +38,3 @@ fn main() -> Result<()> {
 
     Ok(())
 }
-
