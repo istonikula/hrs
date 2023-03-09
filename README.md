@@ -1,1 +1,1 @@
-![hrs](https://github.com/istonikula/hrs/actions/workflows/rust.yml/badge.svg)
+![hrs](https://github.com/istonikula/hrs/actions/workflows/main.yml/badge.svg)
