@@ -139,14 +139,14 @@ pub fn write_total(total: Duration, mut writer: impl std::io::Write) {
     );
 }
 
-pub fn human_duration(duration: Duration) -> String {
+fn human_duration(duration: Duration) -> String {
     format!(
         "{:02}:{:02}",
         duration.num_hours().abs(),
         duration.num_minutes().abs() % 60
     )
 }
-pub fn human_duration_signed(duration: Duration) -> String {
+fn human_duration_signed(duration: Duration) -> String {
     let sign = if duration < Duration::zero() {
         "-"
     } else {
