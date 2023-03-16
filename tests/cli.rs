@@ -61,7 +61,7 @@ fn calculate_day() -> Result<(), Box<dyn std::error::Error>> {
 01:15 10.15-11.30 tagless desc 1
 00:45 11.45-12.30 [TAG-2] desc
 00:15 12.30-12.45 tagless desc 2
-01:30 12.45-14.15 [TAG-2] desc
+01:30 12.45-14.15   [TAG-2] desc
 01:15 15.15-16.30 -\"-
 ----
 01:15 [TAG-1]

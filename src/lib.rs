@@ -46,7 +46,7 @@ fn process_line(
 ) {
     lazy_static! {
         static ref LINE_RE: Regex =
-            Regex::new(r"^([0-9\.]{1,5})-([0-9\.]{1,5}) (\[.*?\])?.*$").unwrap();
+            Regex::new(r"^([0-9\.]{1,5})-([0-9\.]{1,5})\s+(\[.*?\])?.*$").unwrap();
     }
 
     let caps = LINE_RE.captures(line);
@@ -276,6 +276,22 @@ mod tests {
                 Duration::minutes(30),
                 Duration::minutes(15),
                 Duration::minutes(105)
+            ]
+        );
+
+        out.clear();
+
+        let line = "16-17   [tag1] NOTE: whitespace before tag";
+        line!(line);
+        assert_eq!(out, expected_output(Duration::minutes(60), line));
+        assert_eq!(prev_tag, Some("[tag1]".to_owned()));
+        assert_eq!(
+            durations_by_tag["[tag1]"],
+            vec![
+                Duration::minutes(30),
+                Duration::minutes(15),
+                Duration::minutes(105),
+                Duration::minutes(60),
             ]
         );
     }
