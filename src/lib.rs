@@ -18,7 +18,7 @@ pub fn find_and_collect_day<'a>(content: &'a str, date: &str) -> Vec<&'a str> {
                 lines_in_day.push(line);
             }
         } else {
-            if line == "" {
+            if line.is_empty() {
                 break;
             }
             lines_in_day.push(line);
@@ -71,7 +71,7 @@ fn process_line(
         }
 
         fn with_mins(time: &str) -> String {
-            if !time.contains(".") {
+            if !time.contains('.') {
                 format!("{}.00", time)
             } else {
                 time.to_owned()
@@ -81,7 +81,7 @@ fn process_line(
         let end = with_mins(end);
 
         fn parse(time: &str) -> NaiveTime {
-            NaiveTime::parse_from_str(&time, "%H.%M").unwrap()
+            NaiveTime::parse_from_str(time, "%H.%M").unwrap()
         }
         let start = parse(&start);
         let end = parse(&end);
