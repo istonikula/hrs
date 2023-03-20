@@ -130,6 +130,15 @@ pub fn write_total(total: Duration, mut writer: impl std::io::Write) {
 }
 
 struct HumanDuration(Duration);
+impl HumanDuration {
+    fn fmt(&self) -> String {
+        format!(
+            "{:02}:{:02}",
+            self.0.num_hours().abs(),
+            self.0.num_minutes().abs() % 60
+        )
+    }
+}
 trait HumanizedDuration {
     fn line(&self) -> ColoredString;
     fn tag(&self) -> ColoredString;
@@ -138,28 +147,21 @@ trait HumanizedDuration {
 }
 impl HumanizedDuration for HumanDuration {
     fn line(&self) -> ColoredString {
-        human_duration(self.0).bold().green()
+        self.fmt().bold().green()
     }
     fn tag(&self) -> ColoredString {
-        human_duration(self.0).bold().blue()
+        self.fmt().bold().blue()
     }
     fn total(&self) -> ColoredString {
-        human_duration(self.0).bold().white()
+        self.fmt().bold().white()
     }
     fn diff(&self) -> ColoredString {
         if self.0 < Duration::zero() {
-            format!("-{}", human_duration(self.0)).red()
+            format!("-{}", self.fmt()).red()
         } else {
-            format!("+{}", human_duration(self.0)).green()
+            format!("+{}", self.fmt()).green()
         }
     }
-}
-fn human_duration(duration: Duration) -> String {
-    format!(
-        "{:02}:{:02}",
-        duration.num_hours().abs(),
-        duration.num_minutes().abs() % 60
-    )
 }
 
 #[cfg(test)]
@@ -168,11 +170,11 @@ mod tests {
 
     #[test]
     fn test_human_duration() {
-        assert_eq!(human_duration(Duration::minutes(1)), "00:01");
-        assert_eq!(human_duration(Duration::minutes(15)), "00:15");
-        assert_eq!(human_duration(Duration::hours(1)), "01:00");
-        assert_eq!(human_duration(Duration::minutes(135)), "02:15");
-        assert_eq!(human_duration(Duration::hours(10)), "10:00");
+        assert_eq!(HumanDuration(Duration::minutes(1)).fmt(), "00:01");
+        assert_eq!(HumanDuration(Duration::minutes(15)).fmt(), "00:15");
+        assert_eq!(HumanDuration(Duration::hours(1)).fmt(), "01:00");
+        assert_eq!(HumanDuration(Duration::minutes(135)).fmt(), "02:15");
+        assert_eq!(HumanDuration(Duration::hours(10)).fmt(), "10:00");
     }
 
     #[test]
@@ -209,7 +211,7 @@ mod tests {
             };
         }
         let expected_output = |d: Duration, line: &str| {
-            format!("{} {}\n", human_duration(d).bold().green(), line).into_bytes()
+            format!("{} {}\n", HumanDuration(d).fmt().bold().green(), line).into_bytes()
         };
 
         let line = "8-9 desc without tag 1";
@@ -329,7 +331,10 @@ mod tests {
         }
         macro_rules! sum_by_tag {
             ($tag:literal) => {
-                human_duration(sum(&durations_by_tag[$tag])).bold().blue()
+                HumanDuration(sum(&durations_by_tag[$tag]))
+                    .fmt()
+                    .bold()
+                    .blue()
             };
         }
 
