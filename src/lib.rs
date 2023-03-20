@@ -174,6 +174,13 @@ mod tests {
         assert_eq!(HumanDuration(Duration::hours(1)).plain(), "01:00");
         assert_eq!(HumanDuration(Duration::minutes(135)).plain(), "02:15");
         assert_eq!(HumanDuration(Duration::hours(10)).plain(), "10:00");
+
+        let hour = (Duration::hours(1), "01:00");
+        assert_eq!(HumanDuration(hour.0).line(), hour.1.bold().green());
+        assert_eq!(HumanDuration(hour.0).tag(), hour.1.bold().blue());
+        assert_eq!(HumanDuration(hour.0).total(), hour.1.bold().white());
+        assert_eq!(HumanDuration(hour.0).diff(), format!("+{}", hour.1).green());
+        assert_eq!(HumanDuration(-hour.0).diff(), format!("-{}", hour.1).red());
     }
 
     #[test]
@@ -210,7 +217,7 @@ mod tests {
             };
         }
         let expected_output = |d: Duration, line: &str| {
-            format!("{} {}\n", HumanDuration(d).plain().bold().green(), line).into_bytes()
+            format!("{} {}\n", HumanDuration(d).line(), line).into_bytes()
         };
 
         let line = "8-9 desc without tag 1";
@@ -330,10 +337,7 @@ mod tests {
         }
         macro_rules! sum_by_tag {
             ($tag:literal) => {
-                HumanDuration(sum(&durations_by_tag[$tag]))
-                    .plain()
-                    .bold()
-                    .blue()
+                HumanDuration(sum(&durations_by_tag[$tag])).tag()
             };
         }
 
@@ -356,23 +360,29 @@ mod tests {
     fn test_write_total() {
         let mut out = Vec::new();
 
-        write_total(Duration::hours(7), &mut out);
+        let total = HumanDuration(Duration::hours(7));
+        let diff = HumanDuration(Duration::minutes(-30));
+        write_total(total.0, &mut out);
         assert_eq!(
             out,
-            format!("{} {}\n", "07:00".bold().white(), "-00:30".red()).as_bytes()
+            format!("{} {}\n", total.total(), diff.diff()).as_bytes()
         );
 
         out.clear();
 
-        write_total(Duration::hours(7) + Duration::minutes(30), &mut out);
-        assert_eq!(out, format!("{}\n", "07:30".bold().white()).as_bytes());
+        let total = HumanDuration(Duration::hours(7) + Duration::minutes(30));
+        let diff = HumanDuration(Duration::zero());
+        write_total(total.0, &mut out);
+        assert_eq!(out, format!("{}\n", total.total()).as_bytes());
 
         out.clear();
 
-        write_total(Duration::hours(8), &mut out);
+        let total = HumanDuration(Duration::hours(8));
+        let diff = HumanDuration(Duration::minutes(30));
+        write_total(total.0, &mut out);
         assert_eq!(
             out,
-            format!("{} {}\n", "08:00".bold().white(), "+00:30".green()).as_bytes()
+            format!("{} {}\n", total.total(), diff.diff()).as_bytes()
         );
     }
 }
