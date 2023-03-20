@@ -6,6 +6,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 use std::collections::HashMap;
+use std::fmt;
 
 pub fn find_and_collect_day<'a>(content: &'a str, date: &str) -> Vec<&'a str> {
     let mut in_day = false;
@@ -132,13 +133,20 @@ pub fn write_total(total: Duration, mut writer: impl std::io::Write) {
 struct HumanDuration(Duration);
 impl HumanDuration {
     fn fmt(&self) -> String {
-        format!(
+        format!("{}", self)
+    }
+}
+impl fmt::Display for HumanDuration {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
             "{:02}:{:02}",
             self.0.num_hours().abs(),
             self.0.num_minutes().abs() % 60
         )
     }
 }
+
 trait HumanizedDuration {
     fn line(&self) -> ColoredString;
     fn tag(&self) -> ColoredString;
@@ -157,9 +165,9 @@ impl HumanizedDuration for HumanDuration {
     }
     fn diff(&self) -> ColoredString {
         if self.0 < Duration::zero() {
-            format!("-{}", self.fmt()).red()
+            format!("-{}", self).red()
         } else {
-            format!("+{}", self.fmt()).green()
+            format!("+{}", self).green()
         }
     }
 }
