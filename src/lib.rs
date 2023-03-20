@@ -1,7 +1,7 @@
 #![allow(unused)]
 
 use chrono::{Duration, NaiveTime};
-use colored::Colorize;
+use colored::{ColoredString, Colorize};
 use lazy_static::lazy_static;
 use regex::Regex;
 
@@ -89,12 +89,7 @@ fn process_line(
         let durations = durations_by_tag.entry(tag).or_insert(Vec::new());
         durations.push(duration);
 
-        writeln!(
-            writer,
-            "{} {}",
-            human_duration(duration).bold().green(),
-            &line
-        );
+        writeln!(writer, "{} {}", HumanDuration(duration).line(), &line);
     }
 }
 
@@ -112,7 +107,7 @@ pub fn write_durations_collect_total(
             duration = duration + *d;
         }
         duration_total = duration_total + duration;
-        writeln!(writer, "{} {}", human_duration(duration).bold().blue(), tag);
+        writeln!(writer, "{} {}", HumanDuration(duration).tag(), tag);
     }
     duration_total
 }
@@ -122,39 +117,46 @@ pub fn write_total(total: Duration, mut writer: impl std::io::Write) {
     let diff = total - full_day;
 
     if diff == Duration::zero() {
-        writeln!(writer, "{}", human_duration(total).bold().white());
+        writeln!(writer, "{}", HumanDuration(total).total());
         return;
     }
 
-    let diff_human = human_duration_signed(diff);
     writeln!(
         writer,
         "{} {}",
-        human_duration(total).bold().white(),
-        if diff < Duration::zero() {
-            diff_human.red()
-        } else {
-            diff_human.green()
-        }
+        HumanDuration(total).total(),
+        HumanDuration(diff).diff()
     );
 }
 
+struct HumanDuration(Duration);
+trait HumanizedDuration {
+    fn line(&self) -> ColoredString;
+    fn tag(&self) -> ColoredString;
+    fn total(&self) -> ColoredString;
+    fn diff(&self) -> ColoredString;
+}
+impl HumanizedDuration for HumanDuration {
+    fn line(&self) -> ColoredString {
+        human_duration(self.0).bold().green()
+    }
+    fn tag(&self) -> ColoredString {
+        human_duration(self.0).bold().blue()
+    }
+    fn total(&self) -> ColoredString {
+        human_duration(self.0).bold().white()
+    }
+    fn diff(&self) -> ColoredString {
+        if self.0 < Duration::zero() {
+            format!("-{}", human_duration(self.0)).red()
+        } else {
+            format!("+{}", human_duration(self.0)).green()
+        }
+    }
+}
 fn human_duration(duration: Duration) -> String {
     format!(
         "{:02}:{:02}",
-        duration.num_hours().abs(),
-        duration.num_minutes().abs() % 60
-    )
-}
-fn human_duration_signed(duration: Duration) -> String {
-    let sign = if duration < Duration::zero() {
-        "-"
-    } else {
-        "+"
-    };
-    format!(
-        "{}{:02}:{:02}",
-        sign,
         duration.num_hours().abs(),
         duration.num_minutes().abs() % 60
     )
