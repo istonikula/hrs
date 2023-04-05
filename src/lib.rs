@@ -14,7 +14,7 @@ pub fn find_and_collect_day<'a>(content: &'a str, date: &str) -> Vec<&'a str> {
 
     for line in content.lines() {
         if !in_day {
-            if line == date {
+            if line == date || line.starts_with(&format!("{} ", date)) {
                 in_day = true;
                 lines_in_day.push(line);
             }
@@ -185,10 +185,22 @@ mod tests {
 
     #[test]
     fn test_find_and_collect_day() {
-        let input = vec![
-            "", "", "", "27.2", "--", "foo", "", "", "28.2", "--", "bar", "", "1.3", "--", "baz",
-        ]
-        .join("\n");
+        let input = "
+
+
+27.2
+--
+foo
+
+
+28.2 (day info)
+--
+bar
+
+1.3  day info
+--
+baz
+";
 
         assert_eq!(
             find_and_collect_day(&input, "27.2"),
@@ -196,12 +208,12 @@ mod tests {
         );
         assert_eq!(
             find_and_collect_day(&input, "28.2"),
-            vec!["28.2", "--", "bar"]
+            vec!["28.2 (day info)", "--", "bar"]
         );
         assert_eq!(find_and_collect_day(&input, "28.02"), [] as [&str; 0]);
         assert_eq!(
-            find_and_collect_day(&input, "1.3"),
-            vec!["1.3", "--", "baz"]
+            find_and_collect_day(&input, "1.3  day info"),
+            vec!["1.3  day info", "--", "baz"]
         );
     }
 
