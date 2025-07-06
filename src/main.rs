@@ -22,22 +22,21 @@ fn main() -> Result<()> {
         .with_context(|| format!("could not read file `{}`", args.path.display()))?;
 
     let lines_in_day = find_and_collect_day(&content, &args.date);
-
-    let mut durations_by_tag: HashMap<String, Vec<Duration>> = HashMap::new();
-    let mut out = std::io::stdout();
-
-    writeln!(out, "----");
     let (processed_lines, durations_by_tag) = process_lines(lines_in_day);
-    for (duration, line) in processed_lines {
-        writeln!(out, "{} {}", HumanDuration(duration).line(), &line)?;
-    }
-
-    writeln!(out, "----");
     let (summary, duration_total) = summarize_durations(&durations_by_tag);
-    for (tag, duration) in summary {
-        writeln!(out, "{} {}", HumanDuration(duration).tag(), tag)?;
-    }
 
+    let mut out = std::io::stdout();
+    print_processed_lines(&mut out, processed_lines)?;
+    print_summary(&mut out, summary)?;
+    print_total_and_diff(&mut out, duration_total)?;
+
+    Ok(())
+}
+
+fn print_total_and_diff(
+    out: &mut std::io::Stdout,
+    duration_total: chrono::Duration,
+) -> Result<()> {
     writeln!(out, "----");
     let full_day = Duration::hours(7) + Duration::minutes(30);
     let diff = duration_total - full_day;
@@ -52,6 +51,27 @@ fn main() -> Result<()> {
             HumanDuration(diff).diff()
         )?;
     }
+    Ok(())
+}
 
+fn print_summary(
+    out: &mut std::io::Stdout,
+    summary: Vec<(String, chrono::Duration)>,
+) -> Result<()> {
+    writeln!(out, "----");
+    for (tag, duration) in summary {
+        writeln!(out, "{} {}", HumanDuration(duration).tag(), tag)?;
+    }
+    Ok(())
+}
+
+fn print_processed_lines(
+    out: &mut std::io::Stdout,
+    processed_lines: Vec<(chrono::Duration, &str)>,
+) -> Result<()> {
+    writeln!(out, "----");
+    for (duration, line) in processed_lines {
+        writeln!(out, "{} {}", HumanDuration(duration).line(), &line)?;
+    }
     Ok(())
 }
