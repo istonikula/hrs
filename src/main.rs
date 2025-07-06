@@ -8,7 +8,7 @@ use colored::Colorize;
 use std::collections::HashMap;
 use std::io::Write;
 
-use hrs::{find_and_collect_day, process_lines, write_durations_collect_total, write_total};
+use hrs::{find_and_collect_day, process_lines, summarize_durations, HumanDuration};
 
 #[derive(Parser)]
 struct Cli {
@@ -27,11 +27,31 @@ fn main() -> Result<()> {
     let mut out = std::io::stdout();
 
     writeln!(out, "----");
-    process_lines(lines_in_day, &mut durations_by_tag, &out);
+    let (processed_lines, durations_by_tag) = process_lines(lines_in_day);
+    for (duration, line) in processed_lines {
+        writeln!(out, "{} {}", HumanDuration(duration).line(), &line)?;
+    }
+
     writeln!(out, "----");
-    let duration_total = write_durations_collect_total(&durations_by_tag, &out);
+    let (summary, duration_total) = summarize_durations(&durations_by_tag);
+    for (tag, duration) in summary {
+        writeln!(out, "{} {}", HumanDuration(duration).tag(), tag)?;
+    }
+
     writeln!(out, "----");
-    write_total(duration_total, &out);
+    let full_day = Duration::hours(7) + Duration::minutes(30);
+    let diff = duration_total - full_day;
+
+    if diff == Duration::zero() {
+        writeln!(out, "{}", HumanDuration(duration_total).total())?;
+    } else {
+        writeln!(
+            out,
+            "{} {}",
+            HumanDuration(duration_total).total(),
+            HumanDuration(diff).diff()
+        )?;
+    }
 
     Ok(())
 }
