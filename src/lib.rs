@@ -8,6 +8,9 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::fmt;
 
+pub mod output;
+pub use output::{print_processed_lines, print_summary, print_total_and_diff};
+
 pub fn find_and_collect_day<'a>(content: &'a str, date: &str) -> Vec<&'a str> {
     let mut in_day = false;
     let mut lines_in_day = Vec::new();
@@ -64,7 +67,7 @@ fn process_line(
         }
         .to_owned();
         if let Some(ref pt) = prev_tag {
-            if (tag.starts_with("-\"")) {
+            if (tag.starts_with("-\"-")) {
                 tag = pt.clone();
             } else {
                 *prev_tag = Some(tag.clone());
@@ -117,58 +120,13 @@ pub fn summarize_durations(
     (summary, duration_total)
 }
 
-pub struct HumanDuration(pub Duration);
-impl HumanDuration {
-    pub fn plain(&self) -> String {
-        format!("{}", self)
-    }
-    pub fn line(&self) -> ColoredString {
-        self.plain().bold().green()
-    }
-    pub fn tag(&self) -> ColoredString {
-        self.plain().bold().blue()
-    }
-    pub fn total(&self) -> ColoredString {
-        self.plain().bold().white()
-    }
-    pub fn diff(&self) -> ColoredString {
-        if self.0 < Duration::zero() {
-            format!("-{}", self).red()
-        } else {
-            format!("+{}", self).green()
-        }
-    }
-}
-impl fmt::Display for HumanDuration {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{:02}:{:02}",
-            self.0.num_hours().abs(),
-            self.0.num_minutes().abs() % 60
-        )
-    }
-}
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_human_duration() {
-        assert_eq!(HumanDuration(Duration::minutes(1)).plain(), "00:01");
-        assert_eq!(HumanDuration(Duration::minutes(15)).plain(), "00:15");
-        assert_eq!(HumanDuration(Duration::hours(1)).plain(), "01:00");
-        assert_eq!(HumanDuration(Duration::minutes(135)).plain(), "02:15");
-        assert_eq!(HumanDuration(Duration::hours(10)).plain(), "10:00");
 
-        let hour = (Duration::hours(1), "01:00");
-        assert_eq!(HumanDuration(hour.0).line(), hour.1.bold().green());
-        assert_eq!(HumanDuration(hour.0).tag(), hour.1.bold().blue());
-        assert_eq!(HumanDuration(hour.0).total(), hour.1.bold().white());
-        assert_eq!(HumanDuration(hour.0).diff(), format!("+{}", hour.1).green());
-        assert_eq!(HumanDuration(-hour.0).diff(), format!("-{}", hour.1).red());
-    }
 
     #[test]
     fn test_find_and_collect_day() {
