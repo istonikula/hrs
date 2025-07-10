@@ -104,23 +104,17 @@ fn process_line(
 pub fn summarize_durations(
     durations_by_tag: &HashMap<String, Vec<Duration>>,
 ) -> (Vec<(String, Duration)>, Duration) {
-    let mut durations_by_tag: Vec<_> = durations_by_tag.iter().collect();
-    durations_by_tag.sort_by(|a, b| a.0.cmp(b.0));
+    let mut summary: Vec<(String, Duration)> = durations_by_tag
+        .iter()
+        .map(|(tag, durations)| (tag.clone(), durations.iter().sum()))
+        .collect();
 
-    let mut duration_total = Duration::minutes(0);
-    let mut summary = Vec::new();
-    for (tag, durations) in durations_by_tag {
-        let mut duration = Duration::minutes(0);
-        for d in durations {
-            duration = duration + *d;
-        }
-        duration_total = duration_total + duration;
-        summary.push((tag.clone(), duration));
-    }
-    (summary, duration_total)
+    summary.sort_by(|a, b| a.0.cmp(&b.0));
+
+    let total = summary.iter().map(|(_, d)| *d).sum();
+
+    (summary, total)
 }
-
-
 
 #[cfg(test)]
 mod tests {
