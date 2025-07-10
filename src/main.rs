@@ -6,9 +6,9 @@ use clap::Parser;
 use colored::Colorize;
 
 use std::collections::HashMap;
-use std::io::Write;
+use std::io::{self, Write};
 
-use hrs::{find_and_collect_day, process_lines, write_durations_collect_total, write_total};
+use hrs::{find_and_collect_day, process_lines, summarize_durations, output::{HumanDuration, print_processed_lines, print_summary, print_total_and_diff}};
 
 #[derive(Parser)]
 struct Cli {
@@ -22,16 +22,19 @@ fn main() -> Result<()> {
         .with_context(|| format!("could not read file `{}`", args.path.display()))?;
 
     let lines_in_day = find_and_collect_day(&content, &args.date);
+    let (processed_lines, durations_by_tag) = process_lines(lines_in_day);
+    let (summary, duration_total) = summarize_durations(&durations_by_tag);
 
-    let mut durations_by_tag: HashMap<String, Vec<Duration>> = HashMap::new();
     let mut out = std::io::stdout();
-
-    writeln!(out, "----");
-    process_lines(lines_in_day, &mut durations_by_tag, &out);
-    writeln!(out, "----");
-    let duration_total = write_durations_collect_total(&durations_by_tag, &out);
-    writeln!(out, "----");
-    write_total(duration_total, &out);
+    print_processed_lines(&mut out, processed_lines)?;
+    print_summary(&mut out, summary)?;
+    print_total_and_diff(&mut out, duration_total)?;
 
     Ok(())
 }
+
+
+
+
+
+
